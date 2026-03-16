@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="en" class="h-full scroll-smooth">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POTP AI Tools — The Ultimate AI Tools Directory</title>
+  <meta name="description" content="Discover the ultimate directory of AI tools for chatbots, research, productivity, writing, design, video, voice, music, agents, development, data, and academic research.">
+  <meta name="keywords" content="AI tools, artificial intelligence, chatbots, image generation, video creation, voice synthesis, music generation">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Inter', 'system-ui', 'sans-serif'],
+            body: ['Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    * { box-sizing: border-box; }
+
+    .app-shell {
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: white;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .card-animate {
+      animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .hero-glow {
+      position: relative;
+      background: white;
+      border: 1px solid #e0e0e0;
+    }
+
+    .tool-card {
+      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.08) 0%, rgba(255, 215, 0, 0.05) 100%);
+      border: 1px solid rgba(65, 105, 225, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(65, 105, 225, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      border-color: rgba(65, 105, 225, 0.4);
+      box-shadow: 0 20px 40px rgba(65, 105, 225, 0.2);
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.12) 0%, rgba(255, 215, 0, 0.08) 100%);
+    }
+
+    .tool-card:hover::before {
+      opacity: 1;
+    }
+
+    /* List view helper */
+    .list-view {
+      grid-template-columns: 1fr !important;
+    }
+
+    .list-view .tool-card {
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .list-view .tool-card .flex-1 {
+      flex: 1;
+    }
+
+    .filter-btn {
+      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      position: relative;
+      white-space: nowrap;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(65, 105, 225, 0.05) 100%);
+      border: 1px solid rgba(65, 105, 225, 0.2);
+      color: #4169E1;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 8px rgba(65, 105, 225, 0.1);
+      cursor: pointer;
+    }
+
+    .filter-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(65, 105, 225, 0.2);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(65, 105, 225, 0.1) 100%);
+      border-color: rgba(65, 105, 225, 0.4);
+    }
+
+    .filter-btn.active {
+      transform: translateY(-2px) scale(1.02);
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%);
+      color: #4169E1;
+      border: 2px solid rgba(65, 105, 225, 0.4);
+      box-shadow: 0 6px 20px rgba(65, 105, 225, 0.3);
+      font-weight: 700;
+    }
+
+    #gridView.active,
+    #listView.active {
+      background: rgba(65, 105, 225, 0.15) !important;
+      color: #4169E1 !important;
+      font-weight: 700 !important;
+    }
+
+    .filter-btn.active::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+      border-radius: inherit;
+      z-index: -1;
+    }
+
+    .search-input {
+      transition: all 0.3s ease;
+      background: white;
+      border: 1px solid #e0e0e0;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #4169E1;
+      box-shadow: 0 0 20px rgba(65, 105, 225, 0.2);
+      background: white;
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #4169E1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #FFD700; }
+
+    .neon-text {
+      color: #4169E1;
+      font-weight: bold;
+    }
+
+    .copy-toast {
+      animation: slideInRight 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .btn-glow:hover {
+      box-shadow: 0 0 15px rgba(65, 105, 225, 0.4);
+    }
+
+    .favorite-btn {
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      background: rgba(255, 215, 0, 0.1);
+      color: #FFD700;
+    }
+
+    .favorite-btn.active {
+      background: rgba(255, 215, 0, 0.25);
+      border-color: rgba(255, 215, 0, 0.35);
+      transform: scale(1.05);
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 10px rgba(65, 105, 225, 0.2); }
+      50% { box-shadow: 0 0 20px rgba(65, 105, 225, 0.4); }
+    }
+
+    .logo-img {
+      max-width: 150px;
+      height: auto;
+    }
+
+    /* Icon animations */
+    .tool-icon {
+      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .tool-card:hover .tool-icon {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 8px 16px rgba(65, 105, 225, 0.3);
+    }
+
+    /* Dark Mode */
+    .dark-mode body { background: #0d1b2a; color: #ffffff; }
+    .dark-mode .app-shell { background: linear-gradient(135deg, #0d1b2a 0%, #1a2640 50%, #0d1b2a 100%); }
+    .dark-mode .hero-glow { background: linear-gradient(135deg, rgba(65, 105, 225, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%); border: 1px solid rgba(65, 105, 225, 0.2); }
+    .dark-mode .tool-card { background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(65, 105, 225, 0.04) 100%); border: 1px solid rgba(65, 105, 225, 0.1); }
+    .dark-mode .tool-card::before { background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(65, 105, 225, 0.1), transparent); }
+    .dark-mode .tool-card:hover { border-color: rgba(65, 105, 225, 0.3); box-shadow: 0 20px 40px rgba(65, 105, 225, 0.15); }
+    .dark-mode .search-input { background: linear-gradient(135deg, rgba(65, 105, 225, 0.05) 0%, rgba(255, 215, 0, 0.05) 100%); border: 1px solid rgba(65, 105, 225, 0.2); color: #ffffff; }
+    .dark-mode .search-input:focus { border-color: rgba(65, 105, 225, 0.6); box-shadow: 0 0 20px rgba(65, 105, 225, 0.2); background: linear-gradient(135deg, rgba(65, 105, 225, 0.1) 0%, rgba(255, 215, 0, 0.1) 100%); }
+    .dark-mode ::-webkit-scrollbar-thumb { background: rgba(65, 105, 225, 0.2); }
+    .dark-mode ::-webkit-scrollbar-thumb:hover { background: rgba(65, 105, 225, 0.4); }
+    .dark-mode .neon-text { background: linear-gradient(120deg, #4169E1, #FFD700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .dark-mode .copy-toast { background: rgba(65, 105, 225, 0.2); color: #5b9bd5; border: 1px solid rgba(65, 105, 225, 0.4); }
+    .dark-mode .btn-glow:hover { box-shadow: 0 0 15px rgba(65, 105, 225, 0.4); }
+    .dark-mode .filter-btn {
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.08) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
+      border-color: rgba(65, 105, 225, 0.2) !important;
+      color: #cccccc !important;
+      box-shadow: 0 2px 8px rgba(65, 105, 225, 0.1) !important;
+    }
+
+    .dark-mode .filter-btn:hover {
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.12) 0%, rgba(255, 255, 255, 0.08) 100%) !important;
+      border-color: rgba(65, 105, 225, 0.3) !important;
+      box-shadow: 0 4px 16px rgba(65, 105, 225, 0.2) !important;
+    }
+
+    .dark-mode .filter-btn.active {
+      background: linear-gradient(135deg, rgba(65, 105, 225, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%) !important;
+      color: #5b9bd5 !important;
+      border: 2px solid rgba(65, 105, 225, 0.4) !important;
+      box-shadow: 0 6px 20px rgba(65, 105, 225, 0.3) !important;
+    }
+
+    .dark-mode .bg-gradient-to-l {
+      background: linear-gradient(to left, #0d1b2a, transparent) !important;
+    }
+
+    .dark-mode #scrollLeft,
+    .dark-mode #scrollRight {
+      background: rgba(65, 105, 225, 0.1) !important;
+      border-color: rgba(65, 105, 225, 0.2) !important;
+      color: #5b9bd5 !important;
+    }
+
+    /* Filter container improvements */
+    #filterContainer {
+      min-height: 60px;
+      align-items: center;
+    }
+
+    /* Star rating styles */
+    .dark-mode .star-icon.empty {
+      color: #666 !important;
+    }
+
+    /* Ensure all filter buttons are visible on larger screens */
+    @media (min-width: 768px) {
+      #filterContainer {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+      }
+
+      .filter-btn {
+        flex: 0 0 auto;
+        min-width: fit-content;
+      }
+    }
+
+    /* Mobile scroll improvements */
+    @media (max-width: 767px) {
+      #filterContainer {
+        padding-left: 2.5rem;
+        padding-right: 2.5rem;
+      }
+
+      #scrollLeft, #scrollRight {
+        opacity: 1 !important;
+      }
+    }
+    .dark-mode h1, .dark-mode h2, .dark-mode p, .dark-mode span, .dark-mode div { color: #ffffff !important; }
+    .dark-mode .tool-icon {
+      background: rgba(255, 255, 255, 0.1) !important;
+      border-color: rgba(65, 105, 225, 0.3) !important;
+    }
+    .dark-mode .tool-card p { color: #cccccc !important; }
+    .dark-mode #emptyState h2 { color: #ffffff !important; }
+    .dark-mode #emptyState p { color: #cccccc !important; }
+    .dark-mode #tagline { color: #cccccc !important; }
+    .dark-mode #creatorName { color: #ffffff !important; }
+    .dark-mode #resultsCount { color: #cccccc !important; }
+    .dark-mode footer p { color: #cccccc !important; }
+    .dark-mode .subtitle { color: #cccccc !important; }
+    .dark-mode footer a { color: #5b9bd5 !important; }
+    .dark-mode .theme-toggle-btn { background: rgba(65, 105, 225, 0.2) !important; border-color: rgba(65, 105, 225, 0.4) !important; }
+    .dark-mode .border-t { border-color: rgba(65, 105, 225, 0.3) !important; }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+  <body class="h-full" style="font-family: 'Inter', system-ui, sans-serif; background: white; color: #1a1a1a;">
+  <div class="app-shell w-full" id="appShell"><!-- Header with Logo & Creator Info -->
+   <header class="hero-glow mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-10">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+     <!-- Logo Section -->
+     <div class="flex justify-center lg:justify-start">
+      <img src="https://i.postimg.cc/XYn41mKn/Black_And_White_Modern_Initial_PB_Consulting_Logo_Design_(5).png" alt="POTP Logo" class="logo-img" style="max-width: 150px;">
+     </div>
+
+     <!-- Main Title & Description -->
+     <div class="text-center space-y-3">
+      <div>
+       <h1 id="websiteTitle" class="text-4xl sm:text-5xl font-bold neon-text mb-1" style="line-height: 1.1;">POTP AI Tools</h1>
+       <p id="tagline" class="text-base sm:text-lg font-medium" style="color: #333;">The Ultimate AI Tools Directory</p>
+      </div>
+      <div class="border-t border-gray-200 pt-3" style="border-color: rgba(65, 105, 225, 0.2);">
+       <p class="subtitle text-sm" style="color: #555; font-weight: 500;">Organized with precision • Updated regularly • Last updated: March 2026</p>
+      </div>
+     </div>
+
+     <!-- Creator & Controls -->
+     <div class="flex flex-col items-center lg:items-end gap-4 text-sm">
+      <div class="text-center lg:text-right space-y-2">
+       <div>
+        <p class="font-semibold" style="color: #333;"><span id="creatorName">Engineer Ahmed Aldeib</span></p>
+        <p style="color: #555; font-size: 0.875rem;">Civil Engineer • PM Trainer • POTP Founder</p>
+       </div>
+       <div>
+        <a href="mailto:ahmedaldeib91@gmail.com" id="creatorEmail" class="text-sm hover:underline font-medium" style="color: #4169E1; text-decoration: none;">ahmedaldeib91@gmail.com</a>
+       </div>
+      </div>
+      <div class="flex justify-center lg:justify-end">
+       <button id="themeToggle" class="theme-toggle-btn px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105" style="background: rgba(65, 105, 225, 0.1); color: #4169E1; border: 1px solid rgba(65, 105, 225, 0.2);">🌙 Dark Mode</button>
+      </div>
+     </div>
+    </div>
+   </header><!-- Search & Filter Section -->
+   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <!-- Enhanced Search & Filter Section -->
+    <nav class="mb-8" aria-label="Search and filters">
+     <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 shadow-lg">
+      <!-- Search Bar -->
+      <div class="mb-6">
+       <label for="searchInput" class="sr-only">Search AI tools</label>
+       <div class="relative">
+        <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" style="color: #4169E1;"><i data-lucide="search" style="width: 20px; height: 20px;"></i>
+       </div><input type="text" id="searchInput" class="search-input w-full pl-12 pr-12 py-4 rounded-xl text-base font-medium border-2" style="color: #1a1a1a; border-color: rgba(65, 105, 225, 0.2);" placeholder="🔍 Search AI tools by name, description, or category...">
+        <button id="clearSearch" class="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg hidden btn-glow" style="color: #4169E1; background: rgba(65, 105, 225, 0.1); --glow-color: rgba(65, 105, 225, 0.4);" aria-label="Clear search">
+         <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+        </button>
+       </div>
+      </div>
+
+      <!-- Advanced Filters -->
+      <div class="flex flex-wrap items-center gap-4 mb-4">
+       <!-- Sort Options -->
+       <div class="flex items-center gap-2">
+        <label class="text-sm font-medium" style="color: #333;">Sort by:</label>
+        <select id="sortSelect" class="px-3 py-2 rounded-lg border text-sm font-medium" style="border-color: rgba(65, 105, 225, 0.2); color: #4169E1;">
+         <option value="name">Name (A-Z)</option>
+         <option value="rating">⭐ Rating</option>
+         <option value="category">Category</option>
+         <option value="newest">Recently Added</option>
+        </select>
+       </div>
+
+       <!-- View Toggle -->
+       <div class="flex items-center gap-2">
+        <label class="text-sm font-medium" style="color: #333;">View:</label>
+        <div class="flex rounded-lg border overflow-hidden" style="border-color: rgba(65, 105, 225, 0.2);">
+         <button id="gridView" class="px-3 py-2 text-sm font-medium active" style="background: rgba(65, 105, 225, 0.1); color: #4169E1;">⊞ Grid</button>
+         <button id="listView" class="px-3 py-2 text-sm font-medium" style="color: #666;">☰ List</button>
+        </div>
+       </div>
+
+       <!-- Favorites Toggle -->
+       <button id="favoritesToggle" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium btn-glow" style="background: rgba(255, 215, 0, 0.1); color: #FFD700; border: 1px solid rgba(255, 215, 0, 0.2);">
+        <i data-lucide="heart" style="width: 16px; height: 16px;"></i>
+        <span id="favoritesCount">0</span> Favorites
+       </button>
+      </div>
+
+      <!-- Category Filters -->
+      <div class="relative">
+       <div id="filterContainer" class="flex gap-3 overflow-x-auto pb-4 px-1 scroll-smooth mx-10 md:mx-0" style="scrollbar-width: none; -webkit-overflow-scrolling: touch; scroll-behavior: smooth;">
+       </div>
+       <!-- Navigation buttons for mobile -->
+       <button id="scrollLeft" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200 shadow-lg flex items-center justify-center opacity-0 md:opacity-100 transition-opacity hover:bg-white hover:scale-110 md:hidden" style="color: #4169E1;">
+        <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+       </button>
+       <button id="scrollRight" class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm border border-gray-200 shadow-lg flex items-center justify-center opacity-0 md:opacity-100 transition-opacity hover:bg-white hover:scale-110 md:hidden" style="color: #4169E1;">
+        <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+       </button>
+       <!-- Scroll indicator for mobile -->
+       <div class="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none md:hidden"></div>
+      </div>
+     </div>
+    </nav><!-- Results Count & Toggle -->
+    <div class="flex items-center justify-between mb-6 px-1">
+     <p id="resultsCount" class="text-sm font-medium" style="color: #333;"></p>
+    </div>
+   </div><!-- Tools Grid -->
+   <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+    <div id="toolsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    </div><!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-20">
+     <div class="inline-flex items-center justify-center w-16 h-16 rounded-xl mb-5" style="background: rgba(65, 105, 225, 0.1);"><i data-lucide="search-x" style="width: 28px; height: 28px; color: #4169E1;"></i>
+     </div>
+     <h2 class="text-2xl font-bold mb-2" style="color: #1a1a1a;">No tools found</h2>
+     <p class="text-sm" style="color: #333;">Try adjusting your search or filters.</p>
+    </div>
+   </main><!-- Footer -->
+   <footer class="max-w-7xl mx-auto px-4 sm:px-6 py-8 border-t text-center" style="border-color: #e0e0e0;">
+    <p class="text-sm" style="color: #333;">Curated by Engineer Ahmed Aldeib • <a href="https://potp-pm.ly/" target="_blank" rel="noopener noreferrer" style="color: #4169E1; text-decoration: none;">POTP-PM</a></p>
+    <p class="text-xs mt-3" style="color: #333;">Organized with precision • Updated regularly • Last updated: March 2026</p>
+    <p class="text-xs mt-1" style="color: #333;">Note: Some AI tools may be geo-restricted. Use a VPN if access is blocked in your region.</p>
+   </footer><!-- Copy Toast Notification -->
+   <div id="copyToast" class="fixed bottom-6 right-6 px-4 py-3 rounded-lg text-sm font-medium hidden" style="background: rgba(65, 105, 225, 0.2); color: #4169E1; border: 1px solid rgba(65, 105, 225, 0.4); z-index: 50;">
+    <div class="flex items-center gap-2">
+     <i data-lucide="check" style="width: 16px; height: 16px;"></i> <span>Link copied to clipboard!</span>
+    </div>
+   </div>
+  </div>
+  <script>
+    // ===== CONFIG =====
+    const defaultConfig = {
+      website_title: 'POTP AI Tools',
+      tagline: 'The Ultimate AI Tools Directory',
+      creator_name: 'Engineer Ahmed Aldeib',
+      creator_email: 'ahmedaldeib91@gmail.com',
+      search_placeholder: 'Search AI tools...',
+      primary_color: '#4169E1',
+      accent_color: '#FFD700',
+      font_family: 'Inter',
+      font_size: 16
+    };
+
+    let config = { ...defaultConfig };
+
+    // ===== TOOLS DATA =====
+    const CATEGORIES = [
+      { id: 'chatbots',    name: 'AI Chatbots',                  emoji: '💬', color: '#4169E1' },
+      { id: 'research',    name: 'AI Research & Search',          emoji: '🔬', color: '#FFD700' },
+      { id: 'productivity',name: 'AI Productivity & Knowledge',   emoji: '📚', color: '#4169E1' },
+      { id: 'writing',     name: 'AI Writing & Text Tools',       emoji: '✍️', color: '#FFD700' },
+      { id: 'design',      name: 'AI Design & Image Generation',  emoji: '🎨', color: '#4169E1' },
+      { id: 'video',       name: 'AI Video Generation',           emoji: '🎬', color: '#FFD700' },
+      { id: 'voice',       name: 'AI Voice',                      emoji: '🎙️', color: '#4169E1' },
+      { id: 'music',       name: 'AI Music Generation',           emoji: '🎵', color: '#FFD700' },
+      { id: 'agents',      name: 'AI Agents',                     emoji: '🤖', color: '#4169E1' },
+      { id: 'dev',         name: 'AI Development & Experiments',   emoji: '🧪', color: '#FFD700' },
+      { id: 'project-management', name: 'AI Project Management', emoji: '📋', color: '#4169E1' },
+      { id: 'data',        name: 'AI Data & Business Tools',      emoji: '📊', color: '#4169E1' },
+      { id: 'academic',    name: 'Academic Research Platforms',    emoji: '🎓', color: '#FFD700' },
+    ];
+
+    const TOOLS = [
+      { name: 'ChatGPT', url: 'https://chatgpt.com/', cat: 'chatbots', desc: 'Conversational AI by OpenAI', rating: 4.8 },
+      { name: 'Gemini', url: 'https://gemini.google.com/app', cat: 'chatbots', desc: 'Google\'s multimodal AI assistant', rating: 4.6 },
+      { name: 'Gemini Enterprise', url: 'https://business.gemini.google/home/cid/4ca2446c-d309-46bf-afed-3602ef5b3aeb', cat: 'chatbots', desc: 'Gemini for business teams', rating: 4.4 },
+      { name: 'Claude', url: 'https://claude.ai/', cat: 'chatbots', desc: 'Thoughtful AI by Anthropic (Note: May be unavailable in some regions due to geo-restrictions)', rating: 4.7 },
+      { name: 'Copilot', url: 'https://copilot.microsoft.com/', cat: 'chatbots', desc: 'Microsoft AI companion', rating: 4.3 },
+      { name: 'Qwen', url: 'https://chat.qwen.ai/', cat: 'chatbots', desc: 'Alibaba\'s AI chat model', rating: 4.2 },
+      { name: 'Poe', url: 'https://poe.com/', cat: 'chatbots', desc: 'AI chat platform by Quora with multiple models', rating: 4.1 },
+      { name: 'HuggingChat', url: 'https://huggingface.co/chat', cat: 'chatbots', desc: 'Open-source AI chat by Hugging Face', rating: 3.8 },
+      { name: 'DuckDuckGo AI Chat', url: 'https://duckduckgo.com/ai', cat: 'chatbots', desc: 'Privacy-focused AI chat by DuckDuckGo', rating: 3.9 },
+      { name: 'DeepSeek', url: 'https://chat.deepseek.com/', cat: 'chatbots', desc: 'Advanced reasoning AI', rating: 4.0 },
+      { name: 'Meta AI', url: 'https://www.meta.ai/', cat: 'chatbots', desc: 'Meta\'s conversational AI', rating: 3.7 },
+      { name: 'Kimi', url: 'https://www.kimi.com/', cat: 'chatbots', desc: 'Long-context AI assistant', rating: 3.9 },
+      { name: 'Z AI', url: 'https://chat.z.ai/', cat: 'chatbots', desc: 'Streamlined AI chat', rating: 3.6 },
+      { name: 'LongCat', url: 'https://longcat.chat/', cat: 'chatbots', desc: 'Extended context conversations', rating: 3.8 },
+      { name: 'Character AI', url: 'https://character.ai/', cat: 'chatbots', desc: 'Chat with AI characters', rating: 4.1 },
+      { name: 'Grok', url: 'https://grok.x.ai/', cat: 'chatbots', desc: 'AI by xAI, helpful and maximally truthful', rating: 4.2 },
+      { name: 'Mistral', url: 'https://chat.mistral.ai/', cat: 'chatbots', desc: 'Open-source AI chat model', rating: 4.0 },
+
+      { name: 'Perplexity', url: 'https://www.perplexity.ai/', cat: 'research', desc: 'AI-powered answer engine', rating: 4.5 },
+      { name: 'Elicit', url: 'https://elicit.org/', cat: 'research', desc: 'AI research assistant for finding and synthesizing scientific papers', rating: 4.3 },
+      { name: 'SciSpace', url: 'https://typeset.io/scispace', cat: 'research', desc: 'AI-powered research tool for reading and understanding scientific papers', rating: 4.4 },
+      { name: 'Semantic Scholar', url: 'https://www.semanticscholar.org/', cat: 'research', desc: 'AI-powered search engine for scientific literature', rating: 4.6 },
+      { name: 'Consensus', url: 'https://consensus.app/', cat: 'research', desc: 'Search engine for research papers', rating: 4.2 },
+      { name: 'Liner', url: 'https://app.liner.com/', cat: 'research', desc: 'AI research assistant', rating: 3.9 },
+      { name: 'Felo', url: 'https://felo.ai/search/', cat: 'research', desc: 'Multilingual AI search', rating: 4.0 },
+      { name: 'iAsk', url: 'https://iask.ai/', cat: 'research', desc: 'Free AI search engine', rating: 3.7 },
+      { name: 'AnswerThis', url: 'https://answerthis.io/home-2', cat: 'research', desc: 'AI research literature tool', rating: 3.8 },
+      { name: 'Paperguide', url: 'https://paperguide.ai/', cat: 'research', desc: 'Navigate academic papers with AI', rating: 4.1 },
+      { name: 'STORM', url: 'https://storm.genie.stanford.edu/', cat: 'research', desc: 'Stanford\'s research synthesis AI', rating: 4.3 },
+      { name: 'Artificial Analysis', url: 'https://artificialanalysis.ai/', cat: 'research', desc: 'AI model benchmarks & analysis', rating: 4.4 },
+
+      { name: 'NotebookLM', url: 'https://notebooklm.google/', cat: 'productivity', desc: 'Google\'s AI notebook', rating: 4.2 },
+      { name: 'Zapier', url: 'https://zapier.com/', cat: 'productivity', desc: 'AI-powered workflow automation', rating: 4.6 },
+      { name: 'Make', url: 'https://www.make.com/', cat: 'productivity', desc: 'Visual workflow automation platform', rating: 4.4 },
+      { name: 'Humata AI', url: 'https://www.humata.ai/', cat: 'productivity', desc: 'AI document analysis and insights', rating: 4.1 },
+      { name: 'Tome', url: 'https://tome.app/', cat: 'productivity', desc: 'AI-powered storytelling and presentation tool', rating: 4.3 },
+      { name: 'Otter.ai', url: 'https://otter.ai/', cat: 'productivity', desc: 'AI meeting notes and transcription', rating: 4.5 },
+      { name: 'NoteGPT', url: 'https://notegpt.io/', cat: 'productivity', desc: 'AI-powered note taking', rating: 3.9 },
+      { name: 'GitMind', url: 'https://gitmind.com/', cat: 'productivity', desc: 'AI mind mapping tool', rating: 4.0 },
+      { name: 'Napkin', url: 'https://app.napkin.ai/', cat: 'productivity', desc: 'Turn text into visuals', rating: 4.2 },
+      { name: 'YouLearn', url: 'https://app.youlearn.ai/ar', cat: 'productivity', desc: 'AI learning companion', rating: 3.8 },
+
+      { name: 'HIX AI', url: 'https://hix.ai/home', cat: 'writing', desc: 'All-in-one AI writing copilot', rating: 4.3 },
+      { name: 'Clever AI Humanizer', url: 'https://cleverhumanizer.ai/', cat: 'writing', desc: 'Make AI text sound human', rating: 3.9 },
+      { name: 'TRINKA', url: 'https://cloud.trinka.ai/', cat: 'writing', desc: 'Academic writing assistant', rating: 4.4 },
+      { name: 'GPT Zero', url: 'https://gptzero.me/', cat: 'writing', desc: 'AI content detector', rating: 4.1 },
+      { name: 'GeneratePromptAI', url: 'https://generateprompt.ai/', cat: 'writing', desc: 'AI prompt generator', rating: 3.7 },
+
+      { name: 'Leonardo AI', url: 'https://app.leonardo.ai/', cat: 'design', desc: 'AI image generation platform', rating: 4.5 },
+      { name: 'Recraft.ai', url: 'https://recraft.ai/', cat: 'design', desc: 'AI-powered design and image generation tool', rating: 4.2 },
+      { name: 'Adobe Firefly', url: 'https://firefly.adobe.com/', cat: 'design', desc: 'Adobe\'s AI creative tools', rating: 4.3 },
+      { name: 'Gamma.app', url: 'https://gamma.app/', cat: 'design', desc: 'AI-powered presentation and design tool', rating: 4.4 },
+      { name: 'Lovart', url: 'https://www.lovart.ai/', cat: 'design', desc: 'AI art creation studio', rating: 3.9 },
+      { name: 'Design Arena', url: 'https://www.designarena.ai/', cat: 'design', desc: 'AI design comparison tool', rating: 3.8 },
+      { name: 'Seedream AI', url: 'https://seedream.pro/', cat: 'design', desc: 'AI dream visualization', rating: 3.6 },
+      { name: 'Midjourney', url: 'https://www.midjourney.com/', cat: 'design', desc: 'AI image generation via Discord', rating: 4.7 },
+      { name: 'DALL-E', url: 'https://openai.com/dall-e-3/', cat: 'design', desc: 'OpenAI\'s image generation model', rating: 4.6 },
+      { name: 'Stable Diffusion', url: 'https://stability.ai/', cat: 'design', desc: 'Open-source image generation', rating: 4.4 },
+
+      { name: 'HeyGen', url: 'https://app.heygen.com/', cat: 'video', desc: 'AI video generation with avatars', rating: 4.5 },
+      { name: 'Kling AI', url: 'https://app.klingai.com/', cat: 'video', desc: 'AI video creation tool', rating: 4.1 },
+      { name: 'Sora', url: 'https://sora.chatgpt.com/explore/', cat: 'video', desc: 'OpenAI\'s video generator', rating: 4.3 },
+      { name: 'MovieFlow', url: 'https://www.movieflow.ai/home', cat: 'video', desc: 'AI movie production tool', rating: 3.9 },
+      { name: 'Golpo', url: 'https://video.golpoai.com/', cat: 'video', desc: 'AI video storytelling', rating: 3.8 },
+      { name: 'Runway ML', url: 'https://runwayml.com/', cat: 'video', desc: 'AI video editing and generation', rating: 4.4 },
+      { name: 'Pika', url: 'https://pika.art/', cat: 'video', desc: 'AI video creation from text', rating: 4.2 },
+
+      { name: 'ElevenLabs', url: 'https://elevenlabs.io/', cat: 'voice', desc: 'Realistic AI voice synthesis', rating: 4.7 },
+      { name: 'Adobe Podcast', url: 'https://podcast.adobe.com/enhance', cat: 'voice', desc: 'AI-powered podcast enhancement and editing', rating: 4.1 },
+      { name: 'Murf AI', url: 'https://murf.ai/', cat: 'voice', desc: 'AI voice over and text-to-speech', rating: 4.3 },
+
+      { name: 'Suno', url: 'https://suno.ai/', cat: 'music', desc: 'AI music generation', rating: 4.4 },
+      { name: 'Udio', url: 'https://udio.com/', cat: 'music', desc: 'AI music creation platform', rating: 4.2 },
+
+      { name: 'Manus', url: 'https://manus.im/app', cat: 'agents', desc: 'Autonomous AI agent', rating: 3.9 },
+      { name: 'Skywork', url: 'https://skywork.ai/', cat: 'agents', desc: 'AI agent platform', rating: 3.7 },
+      { name: 'Genspark AI Workspace', url: 'https://www.genspark.ai/', cat: 'agents', desc: 'AI-powered workspace', rating: 4.0 },
+      { name: 'AutoGPT', url: 'https://agpt.co/', cat: 'agents', desc: 'Autonomous AI agents', rating: 4.1 },
+
+      { name: 'Google AI Studio', url: 'https://aistudio.google.com/', cat: 'dev', desc: 'Prototype with Google AI models', rating: 4.3 },
+      { name: 'Google Labs', url: 'https://labs.google/fx', cat: 'dev', desc: 'Experimental Google AI projects', rating: 4.0 },
+      { name: 'Opal', url: 'https://opal.google/', cat: 'dev', desc: 'Google\'s AI experiments hub', rating: 3.8 },
+      { name: 'LM Arena', url: 'https://arena.ai/text/side-by-side', cat: 'dev', desc: 'Compare AI models head-to-head', rating: 4.2 },
+      { name: 'GitHub Copilot', url: 'https://github.com/features/copilot', cat: 'dev', desc: 'AI coding assistant', rating: 4.6 },
+      { name: 'Blackbox AI', url: 'https://www.useblackbox.io/', cat: 'dev', desc: 'AI coding assistant with multiple models', rating: 4.1 },
+      { name: 'Phind', url: 'https://www.phind.com/', cat: 'dev', desc: 'AI search engine for developers', rating: 4.4 },
+      { name: 'Cursor', url: 'https://cursor.sh/', cat: 'dev', desc: 'AI-first code editor', rating: 4.5 },
+
+      { name: 'GPTExcel', url: 'https://gptexcel.uk/chat', cat: 'data', desc: 'AI for spreadsheet formulas', rating: 3.9 },
+      { name: 'Kortix', url: 'https://www.kortix.com/dashboard', cat: 'data', desc: 'AI business intelligence', rating: 4.2 },
+      { name: 'PMI Infinity', url: 'https://infinity.pmi.org/chat', cat: 'data', desc: 'AI for project management', rating: 4.0 },
+
+      { name: 'Jira', url: 'https://www.atlassian.com/software/jira', cat: 'project-management', desc: 'AI-powered project management and issue tracking', rating: 4.5 },
+      { name: 'Microsoft Project + Copilot', url: 'https://www.microsoft.com/microsoft-project', cat: 'project-management', desc: 'Project management with AI assistance', rating: 4.2 },
+      { name: 'ClickUp', url: 'https://clickup.com/', cat: 'project-management', desc: 'AI-enhanced task and project management', rating: 4.4 },
+      { name: 'Asana', url: 'https://asana.com/', cat: 'project-management', desc: 'Work management platform with AI features', rating: 4.3 },
+      { name: 'Monday.com', url: 'https://monday.com/', cat: 'project-management', desc: 'Work operating system with AI automation', rating: 4.6 },
+      { name: 'Smartsheet AI', url: 'https://www.smartsheet.com/', cat: 'project-management', desc: 'AI-powered project management and collaboration', rating: 4.3 },
+      { name: 'Forecast', url: 'https://www.forecast.app/', cat: 'project-management', desc: 'Resource management and project planning with AI', rating: 4.1 },
+      { name: 'Wrike AI', url: 'https://www.wrike.com/', cat: 'project-management', desc: 'AI-enhanced work management platform', rating: 4.2 },
+      { name: 'Tableau + Ask Data', url: 'https://www.tableau.com/', cat: 'project-management', desc: 'Business intelligence with natural language queries', rating: 4.4 },
+      { name: 'Power BI', url: 'https://powerbi.microsoft.com/', cat: 'project-management', desc: 'Microsoft\'s AI-powered business analytics', rating: 4.5 },
+      { name: 'Notion AI', url: 'https://www.notion.so/', cat: 'project-management', desc: 'AI writing and knowledge management', rating: 4.4 },
+      { name: 'RiskAmp', url: 'https://riskamp.com/', cat: 'project-management', desc: 'Risk management and analysis software', rating: 3.9 },
+      { name: 'Palisade @RISK', url: 'https://www.palisade.com/', cat: 'project-management', desc: 'Risk analysis and simulation software', rating: 4.0 },
+
+      { name: 'ProQuest', url: 'https://www.proquest.com/', cat: 'academic', desc: 'Academic research database', rating: 4.3 },
+      { name: 'Academia', url: 'https://www.academia.edu/', cat: 'academic', desc: 'Academic paper sharing platform', rating: 4.1 },
+      { name: 'WeLib', url: 'https://ar.welib.org/', cat: 'academic', desc: 'Digital library resource', rating: 3.8 },
+      { name: 'ResearchGate', url: 'https://www.researchgate.net/', cat: 'academic', desc: 'Scientific research network', rating: 4.2 },
+    ];
+
+    const catMap = {};
+    CATEGORIES.forEach(c => catMap[c.id] = c);
+
+    // ===== STATE =====
+    let activeFilter = 'all';
+    let searchQuery = '';
+    let sortBy = 'name';
+    let viewMode = 'grid'; // 'grid' | 'list'
+    let showFavoritesOnly = false;
+
+    const favoritesKey = 'potp_ai_tools_favorites';
+    const favorites = new Set(JSON.parse(localStorage.getItem(favoritesKey) || '[]'));
+
+    function saveFavorites() {
+      localStorage.setItem(favoritesKey, JSON.stringify([...favorites]));
+    }
+
+    // ===== DOM REFS =====
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearch');
+    const filterContainer = document.getElementById('filterContainer');
+    const toolsGrid = document.getElementById('toolsGrid');
+    const emptyState = document.getElementById('emptyState');
+    const resultsCount = document.getElementById('resultsCount');
+    const copyToast = document.getElementById('copyToast');
+    const sortSelect = document.getElementById('sortSelect');
+    const gridViewButton = document.getElementById('gridView');
+    const listViewButton = document.getElementById('listView');
+    const favoritesToggle = document.getElementById('favoritesToggle');
+
+    function hexToRgb(hex) {
+      const r = parseInt(hex.slice(1,3),16);
+      const g = parseInt(hex.slice(3,5),16);
+      const b = parseInt(hex.slice(5,7),16);
+      return `${r}, ${g}, ${b}`;
+    }
+
+    const themeToggle = document.getElementById('themeToggle');
+    let isDarkMode = false; // Start with light mode
+    function updateThemeToggleText() {
+      themeToggle.textContent = isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode';
+    }
+    themeToggle.addEventListener('click', () => {
+      isDarkMode = !isDarkMode;
+      document.body.classList.toggle('dark-mode', isDarkMode);
+      updateThemeToggleText();
+      localStorage.setItem('potp_ai_tools_dark_mode', JSON.stringify(isDarkMode));
+    });
+    const storedDarkMode = JSON.parse(localStorage.getItem('potp_ai_tools_dark_mode') || 'false');
+    if (storedDarkMode) {
+      isDarkMode = true;
+      document.body.classList.add('dark-mode');
+    }
+    updateThemeToggleText();
+
+    // ===== RENDER FILTERS =====
+    function renderFilters() {
+      const allBtn = document.createElement('button');
+      allBtn.className = 'filter-btn px-5 py-2.5 rounded-xl text-sm font-medium flex-shrink-0';
+      allBtn.dataset.cat = 'all';
+      allBtn.innerHTML = '<span class="flex items-center gap-2"><i data-lucide="grid-3x3" style="width: 16px; height: 16px;"></i> All Tools</span>';
+      allBtn.setAttribute('aria-pressed', 'true');
+      filterContainer.appendChild(allBtn);
+
+      CATEGORIES.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn px-5 py-2.5 rounded-xl text-sm font-medium flex-shrink-0';
+        btn.dataset.cat = cat.id;
+        btn.innerHTML = `<span class="flex items-center gap-2">${cat.emoji} ${cat.name}</span>`;
+        filterContainer.appendChild(btn);
+      });
+      styleFilters();
+    }
+
+    function styleFilters() {
+      filterContainer.querySelectorAll('.filter-btn').forEach(btn => {
+        const isActive = btn.dataset.cat === activeFilter;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        // Remove inline styles to let CSS handle the styling
+        btn.style.removeProperty('background');
+        btn.style.removeProperty('color');
+        btn.style.removeProperty('border');
+      });
+    }
+
+    function updateFavoritesUI() {
+      favoritesToggle.classList.toggle('active', showFavoritesOnly);
+      document.getElementById('favoritesCount').textContent = favorites.size;
+    }
+
+    function updateViewToggleUI() {
+      gridViewButton.classList.toggle('active', viewMode === 'grid');
+      listViewButton.classList.toggle('active', viewMode === 'list');
+    }
+
+    // ===== RENDER TOOLS =====
+    function getFilteredTools() {
+      const q = searchQuery.trim().toLowerCase();
+      const filtered = TOOLS.filter(tool => {
+        const cat = catMap[tool.cat];
+        const matchesCat = activeFilter === 'all' || tool.cat === activeFilter;
+        const matchesSearch = !q ||
+          tool.name.toLowerCase().includes(q) ||
+          (cat && cat.name.toLowerCase().includes(q)) ||
+          tool.url.toLowerCase().includes(q) ||
+          (tool.desc && tool.desc.toLowerCase().includes(q));
+        const matchesFavorites = !showFavoritesOnly || favorites.has(tool.url);
+        return matchesCat && matchesSearch && matchesFavorites;
+      });
+
+      return sortTools(filtered);
+    }
+
+    function sortTools(tools) {
+      const sorted = [...tools];
+      if (sortBy === 'name') {
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (sortBy === 'rating') {
+        sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+      } else if (sortBy === 'category') {
+        sorted.sort((a, b) => {
+          const ca = catMap[a.cat]?.name || '';
+          const cb = catMap[b.cat]?.name || '';
+          return ca.localeCompare(cb) || a.name.localeCompare(b.name);
+        });
+      } else if (sortBy === 'newest') {
+        // Assume tools are in oldest-to-newest order, so reversing shows newest first
+        sorted.reverse();
+      }
+      return sorted;
+    }
+
+    // ===== CREATE STAR RATING =====
+    function createStarRating(rating) {
+      const fullStars = Math.floor(rating);
+      const hasHalfStar = rating % 1 >= 0.5;
+      const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+      let starsHtml = '';
+
+      // Full stars
+      for (let i = 0; i < fullStars; i++) {
+        starsHtml += '<i data-lucide="star" class="star-icon filled" style="width: 12px; height: 12px; color: #FFD700; fill: #FFD700;"></i>';
+      }
+
+      // Half star
+      if (hasHalfStar) {
+        starsHtml += '<i data-lucide="star-half" class="star-icon half" style="width: 12px; height: 12px; color: #FFD700; fill: #FFD700;"></i>';
+      }
+
+      // Empty stars
+      for (let i = 0; i < emptyStars; i++) {
+        starsHtml += '<i data-lucide="star" class="star-icon empty" style="width: 12px; height: 12px; color: #e0e0e0;"></i>';
+      }
+
+      return `<div class="flex items-center gap-1" title="${rating}/5 stars">${starsHtml}<span class="text-xs ml-1" style="color: #666;">${rating}</span></div>`;
+    }
+
+    function createToolCard(tool, index) {
+      const cat = catMap[tool.cat];
+      const card = document.createElement('article');
+      card.className = 'tool-card card-animate rounded-xl p-5 flex flex-col';
+      card.style.animationDelay = `${index * 0.05}s`;
+
+      // Extract domain from URL for favicon
+      const url = new URL(tool.url);
+      const domain = url.hostname;
+      const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+
+      const isFav = favorites.has(tool.url);
+
+      card.innerHTML = `
+        <div class="flex items-start gap-3 mb-3">
+          <div class="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center font-bold text-lg tool-icon overflow-hidden" style="background: white; border: 1px solid ${cat.color}33;">
+            <img src="${faviconUrl}" alt="${tool.name} icon" class="w-8 h-8 object-contain" onerror="this.style.display='none'; this.parentElement.innerHTML='${tool.name.charAt(0).toUpperCase()}'" style="color: ${cat.color};">
+          </div>
+          <div class="min-w-0 flex-1">
+            <a href="${tool.url}" target="_blank" rel="noopener noreferrer" class="block font-semibold text-base truncate hover:underline" style="color: #1a1a1a; text-decoration: none;">
+              ${tool.name}
+            </a>
+            <span class="inline-flex items-center gap-1 mt-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium" style="background: rgba(65, 105, 225, 0.1); color: ${cat.color}; border: 1px solid ${cat.color}33;">
+              ${cat.emoji} ${cat.name}
+            </span>
+            ${tool.rating ? `<div class="mt-2">${createStarRating(tool.rating)}</div>` : ''}
+          </div>
+        </div>
+        ${tool.desc ? `<p class="text-sm mb-4 flex-1" style="color: #333; line-height: 1.5;">${tool.desc}</p>` : '<div class="flex-1"></div>'}
+        <div class="flex gap-2">
+          <a href="${tool.url}" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium btn-glow transition-colors" style="background: rgba(65, 105, 225, 0.1); color: #4169E1; border: 1px solid rgba(65, 105, 225, 0.2); text-decoration: none; --glow-color: rgba(65, 105, 225, 0.4);" onmouseover="this.style.background='rgba(65, 105, 225, 0.15)'" onmouseout="this.style.background='rgba(65, 105, 225, 0.1)'">
+            <i data-lucide="external-link" style="width: 15px; height: 15px;"></i>
+            Visit
+          </a>
+          <button class="copy-btn p-2.5 rounded-lg btn-glow transition-colors" style="background: rgba(255, 215, 0, 0.1); color: #FFD700; border: 1px solid rgba(255, 215, 0, 0.2); cursor: pointer; --glow-color: rgba(255, 215, 0, 0.4);" onclick="copyToClipboard('${tool.url}')" onmouseover="this.style.background='rgba(255, 215, 0, 0.15)'" onmouseout="this.style.background='rgba(255, 215, 0, 0.1)'" title="Copy link">
+            <i data-lucide="copy" style="width: 15px; height: 15px;"></i>
+          </button>
+          <button class="favorite-btn p-2.5 rounded-lg transition-colors ${isFav ? 'active' : ''}" title="Toggle favorite" aria-pressed="${isFav}">
+            <i data-lucide="heart" style="width: 15px; height: 15px; color: ${isFav ? '#FF6B6B' : 'inherit'};"></i>
+          </button>
+        </div>
+      `;
+
+      const favBtn = card.querySelector('.favorite-btn');
+      if (favBtn) {
+        favBtn.addEventListener('click', () => {
+          if (favorites.has(tool.url)) {
+            favorites.delete(tool.url);
+          } else {
+            favorites.add(tool.url);
+          }
+          saveFavorites();
+          favBtn.classList.toggle('active', favorites.has(tool.url));
+          favBtn.setAttribute('aria-pressed', favorites.has(tool.url));
+          updateFavoritesUI();
+          if (showFavoritesOnly) renderTools();
+        });
+      }
+
+      return card;
+    }
+
+    function renderTools() {
+      const filtered = getFilteredTools();
+      toolsGrid.innerHTML = '';
+
+      toolsGrid.classList.toggle('list-view', viewMode === 'list');
+
+      if (filtered.length === 0) {
+        toolsGrid.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+      } else {
+        toolsGrid.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+        filtered.forEach((tool, i) => {
+          toolsGrid.appendChild(createToolCard(tool, i));
+        });
+      }
+
+      if (showFavoritesOnly) {
+        resultsCount.textContent = `Showing ${filtered.length} favorite tools`;
+      } else {
+        resultsCount.textContent = `Showing ${filtered.length} of ${TOOLS.length} tools`;
+      }
+
+      lucide.createIcons();
+    }
+
+    // ===== COPY TO CLIPBOARD =====
+    function copyToClipboard(url) {
+      navigator.clipboard.writeText(url).then(() => {
+        copyToast.classList.remove('hidden');
+        copyToast.classList.add('copy-toast');
+        
+        // Reset animation
+        setTimeout(() => {
+          copyToast.classList.add('hidden');
+          copyToast.classList.remove('copy-toast');
+        }, 2500);
+        
+        lucide.createIcons();
+      }).catch((err) => {
+        console.error('Failed to copy:', err);
+        // Fallback method for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = url;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          copyToast.classList.remove('hidden');
+          copyToast.classList.add('copy-toast');
+          setTimeout(() => {
+            copyToast.classList.add('hidden');
+            copyToast.classList.remove('copy-toast');
+          }, 2500);
+        } catch (e) {
+          console.error('Fallback copy failed:', e);
+        }
+        document.body.removeChild(textarea);
+      });
+    }
+
+    // ===== EVENT LISTENERS =====
+    filterContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      activeFilter = btn.dataset.cat;
+      styleFilters();
+      renderTools();
+    });
+
+    // ===== SCROLL NAVIGATION =====
+    const scrollLeftBtn = document.getElementById('scrollLeft');
+    const scrollRightBtn = document.getElementById('scrollRight');
+
+    function updateScrollButtons() {
+      const container = filterContainer;
+      const isAtStart = container.scrollLeft <= 0;
+      const isAtEnd = container.scrollLeft >= container.scrollWidth - container.clientWidth - 1;
+
+      scrollLeftBtn.style.opacity = isAtStart ? '0' : '1';
+      scrollRightBtn.style.opacity = isAtEnd ? '0' : '1';
+    }
+
+    scrollLeftBtn.addEventListener('click', () => {
+      filterContainer.scrollBy({ left: -200, behavior: 'smooth' });
+    });
+
+    scrollRightBtn.addEventListener('click', () => {
+      filterContainer.scrollBy({ left: 200, behavior: 'smooth' });
+    });
+
+    filterContainer.addEventListener('scroll', updateScrollButtons);
+    window.addEventListener('resize', updateScrollButtons);
+
+    // Initial check
+    setTimeout(updateScrollButtons, 100);
+
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      clearBtn.classList.toggle('hidden', !searchQuery);
+      renderTools();
+    });
+
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchQuery = '';
+      clearBtn.classList.add('hidden');
+      searchInput.focus();
+      renderTools();
+    });
+
+    sortSelect.addEventListener('change', (e) => {
+      sortBy = e.target.value;
+      renderTools();
+    });
+
+    gridViewButton.addEventListener('click', () => {
+      viewMode = 'grid';
+      updateViewToggleUI();
+      renderTools();
+    });
+
+    listViewButton.addEventListener('click', () => {
+      viewMode = 'list';
+      updateViewToggleUI();
+      renderTools();
+    });
+
+    favoritesToggle.addEventListener('click', () => {
+      showFavoritesOnly = !showFavoritesOnly;
+      updateFavoritesUI();
+      renderTools();
+    });
+
+    updateFavoritesUI();
+    updateViewToggleUI();
+    sortSelect.value = sortBy;
+
+    // ===== ELEMENT SDK =====
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (cfg) => {
+          config = cfg;
+          document.getElementById('websiteTitle').textContent = config.website_title || defaultConfig.website_title;
+          document.getElementById('tagline').textContent = config.tagline || defaultConfig.tagline;
+          document.getElementById('creatorName').textContent = config.creator_name || defaultConfig.creator_name;
+          document.getElementById('creatorEmail').href = `mailto:${config.creator_email || defaultConfig.creator_email}`;
+          document.getElementById('creatorEmail').textContent = config.creator_email || defaultConfig.creator_email;
+          searchInput.placeholder = config.search_placeholder || defaultConfig.search_placeholder;
+        },
+        mapToCapabilities: (cfg) => ({
+          recolorables: [
+            { get: () => cfg.primary_color || defaultConfig.primary_color, set: (v) => { cfg.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); } },
+            { get: () => cfg.accent_color || defaultConfig.accent_color, set: (v) => { cfg.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); } },
+          ],
+          borderables: [],
+          fontEditable: { get: () => cfg.font_family || defaultConfig.font_family, set: (v) => { cfg.font_family = v; window.elementSdk.setConfig({ font_family: v }); } },
+          fontSizeable: { get: () => cfg.font_size || defaultConfig.font_size, set: (v) => { cfg.font_size = v; window.elementSdk.setConfig({ font_size: v }); } }
+        }),
+        mapToEditPanelValues: (cfg) => new Map([
+          ['website_title', cfg.website_title || defaultConfig.website_title],
+          ['tagline', cfg.tagline || defaultConfig.tagline],
+          ['creator_name', cfg.creator_name || defaultConfig.creator_name],
+          ['creator_email', cfg.creator_email || defaultConfig.creator_email],
+          ['search_placeholder', cfg.search_placeholder || defaultConfig.search_placeholder],
+        ])
+      });
+    }
+
+    // ===== INIT =====
+    renderFilters();
+    renderTools();
+    lucide.createIcons();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9dd0a60e5460794b',t:'MTc3MzYzMTUwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
